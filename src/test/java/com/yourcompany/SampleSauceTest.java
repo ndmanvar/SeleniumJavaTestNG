@@ -4,6 +4,7 @@ package com.yourcompany;
  * @author Neil Manvar
  */
 
+import com.yourcompany.Pages.*;
 import com.saucelabs.common.SauceOnDemandAuthentication;
 import com.saucelabs.common.SauceOnDemandSessionIdProvider;
 import com.saucelabs.testng.SauceOnDemandAuthenticationProvider;
@@ -30,7 +31,6 @@ import java.net.MalformedURLException;
 import java.net.URL;
 
 import static org.testng.Assert.assertEquals;
-
 
 /**
  * Simple TestNG test which demonstrates being instantiated via a DataProvider in order to supply multiple browser combinations.
@@ -125,11 +125,10 @@ public class SampleSauceTest implements SauceOnDemandSessionIdProvider, SauceOnD
      * @throws Exception if an error occurs during the running of the test
      */
     @Test(dataProvider = "hardCodedBrowsers")
-    public void pandoraTitleTest(String browser, String version, String os, Method method) throws Exception {
+    public void guineaPigHomePage(String browser, String version, String os, Method method) throws Exception {
         WebDriver driver = createDriver(browser, version, os, method.getName());
-        driver.get("http://www.pandora.com/");
-
-        assertEquals(driver.getTitle(), "Pandora Internet Radio - Listen to Free Music You'll Love");
+        WebDriver guineaPigPage = GuineaPig.getGuineaPigHome(driver);
+        assertEquals(guineaPigPage.getTitle(), "I am a page title - Sauce Labs");
     }
 
     /**
@@ -142,49 +141,17 @@ public class SampleSauceTest implements SauceOnDemandSessionIdProvider, SauceOnD
      * @throws Exception if an error occurs during the running of the test
      */
     @Test(dataProvider = "hardCodedBrowsers")
-    public void welcomeScreenLaunchTest(String browser, String version, String os, Method method) throws Exception {
+    public void clickLink(String browser, String version, String os, Method method) throws Exception {
         WebDriver driver = createDriver(browser, version, os, method.getName());
-        driver.get("http://www.pandora.com/");
-
-        WebDriverWait wait = new WebDriverWait(driver, 10);
-
-        // click signin button
-        WebElement signInButton = wait.until(ExpectedConditions.presenceOfElementLocated(By.cssSelector(".message.signin a")));
-        Thread.sleep(5000);
-        signInButton.click();
-
-        wait.until(ExpectedConditions.presenceOfElementLocated(By.cssSelector(".loginForm [name=email]")));
-        wait.until(ExpectedConditions.presenceOfElementLocated(By.cssSelector(".loginForm [name=password]")));
-        wait.until(ExpectedConditions.presenceOfElementLocated(By.cssSelector(".message.register a")));
+        WebDriver guineaPigPage = GuineaPig.getGuineaPigHome(driver);
+        WebDriver guineaPigPage2 = GuineaPig.getGuineaPigHome(driver);
+        // click the link;
+        WebElement guineaPigLink = GuineaPig.findLink(guineaPigPage);
+        guineaPigLink.click();
+        
+        assertEquals(guineaPigPage.getTitle(), guineaPigPage2.getTitle());
     }
 
-    /**
-     * Types in coldplay in the pandora search box, clicks Coldplay, and verifies Coldplay playlist is playing
-     *
-     * @param browser Represents the browser to be used as part of the test run.
-     * @param version Represents the version of the browser to be used as part of the test run.
-     * @param os Represents the operating system to be used as part of the test run.
-     * @param Method Represents the method, used for getting the name of the test/method
-     * @throws Exception if an error occurs during the running of the test
-     */
-    @Test(dataProvider = "hardCodedBrowsers")
-    public void coldplayTest(String browser, String version, String os, Method method) throws Exception {
-        WebDriver driver = createDriver(browser, version, os, method.getName());
-        driver.get("http://www.pandora.com/");
-
-        WebDriverWait wait = new WebDriverWait(driver, 10);
-
-        // click signin button
-        WebElement searchBox = wait.until(ExpectedConditions.presenceOfElementLocated(By.cssSelector("#welcomeSearch .searchInput")));
-        Thread.sleep(3000);
-        searchBox.sendKeys("coldplay");
-
-        WebElement coldplaySuggestion = wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//*[@id='searchPopupWelcomePosition']//span[contains(text(), 'Coldplay')]")));
-        coldplaySuggestion.click();
-
-        WebElement topMenu = wait.until(ExpectedConditions.presenceOfElementLocated(By.cssSelector(".stationChangeSelectorNoMenu")));
-        Assert.assertTrue(topMenu.getText().contains("Coldplay"), "Text not found!");
-    }
 
     /**
      * @return the {@link WebDriver} for the current thread
